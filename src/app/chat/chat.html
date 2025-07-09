@@ -1,0 +1,12 @@
+<div class="w-full h-full flex flex-col justify-between ">
+  <div class="flex gap-5 px-10 flex-col h-50 overflow-scroll flex-1">
+    @for(msg of messages; track msg.expiresAt) {
+      <app-chat-bubble [msg]="msg"/>
+    }
+    <div #bottom></div>
+  </div>
+  <div class="w-full">
+    <app-input />
+  </div>
+</div>
+
