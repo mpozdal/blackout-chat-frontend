@@ -36,7 +36,7 @@ export class Chat implements OnInit {
     this.scrollToBottom();
   }
   ngOnInit(): void {
-    this.wsService.connect('ws://localhost:5216/ws');
+    this.wsService.connect('ws://black-out-chat-backend.onrender.com/ws');
 
     this.wsService.messages$.subscribe((raw) => {
       try {
@@ -47,8 +47,7 @@ export class Chat implements OnInit {
           expiresAt: Date.now() + 10000, // 10s do wygaśnięcia
         };
         this.messages.push(msg);
-        console.log(this.messages);
-        // Harmonogram czyszczenia
+
         setTimeout(() => {
           this.messages = this.messages.filter((m) => m !== msg);
         }, 10000);
