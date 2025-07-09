@@ -36,7 +36,7 @@ export class Chat implements OnInit {
     this.scrollToBottom();
   }
   ngOnInit(): void {
-    this.wsService.connect('ws://black-out-chat-backend.onrender.com/ws');
+    this.wsService.connect('wss://black-out-chat-backend.onrender.com/ws');
 
     this.wsService.messages$.subscribe((raw) => {
       try {
