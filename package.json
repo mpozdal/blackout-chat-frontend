@@ -34,9 +34,11 @@
     "zone.js": "~0.15.0"
   },
   "devDependencies": {
+    "@angular-devkit/build-angular": "^20.1.0",
     "@angular/build": "^20.0.5",
     "@angular/cli": "^20.0.5",
     "@angular/compiler-cli": "^20.0.0",
+    "@ngx-env/builder": "^19.1.0",
     "@types/jasmine": "~5.1.0",
     "daisyui": "^5.0.46",
     "jasmine-core": "~5.7.0",

@@ -10,7 +10,6 @@ import { ChatBubble } from '../chat-bubble/chat-bubble';
 import { Input } from '../input/input';
 import { WebsocketService } from '../websocket';
 import { Auth } from '../auth';
-import { environment } from '../../environments/environment';
 
 interface ChatMessage {
   text: string;
@@ -37,7 +36,7 @@ export class Chat implements OnInit, AfterViewInit {
   ) {}
 
   ngOnInit(): void {
-    this.wsService.connect(environment.apiUrl);
+    this.wsService.connect(import.meta.env.NG_APP_APIURL);
 
     this.wsService.messages$.subscribe((raw) => {
       try {

@@ -3,7 +3,6 @@ import { Router } from '@angular/router';
 import { Auth } from '../auth';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { environment } from '../../environments/environment';
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
@@ -23,7 +22,7 @@ export class Login {
       this.showError = true;
       return;
     }
-    if (this.password !== environment.password) {
+    if (this.password !== import.meta.env.NG_APP_PASSWORD) {
       this.showError = true;
       return;
     }
