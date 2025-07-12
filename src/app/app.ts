@@ -4,9 +4,9 @@ import { Nav } from './nav/nav';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Nav],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   protected title = 'blackoutchat';

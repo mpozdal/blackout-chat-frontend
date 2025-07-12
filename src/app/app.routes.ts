@@ -5,13 +5,13 @@ import { guard } from './guard';
 import { Dashboard } from './dashboard/dashboard';
 export const routes: Routes = [
   {
-    path: "",
-    component: Login
+    path: '',
+    component: Login,
   },
   {
-    path: "chat",
+    path: 'chat',
     component: Dashboard,
-    canActivate: [guard]
+    canActivate: [guard],
   },
-  { path: '**', component: Login }
+  { path: '**', redirectTo: '' },
 ];

@@ -1,22 +1,21 @@
 import { Injectable } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class Auth {
-  private username: string = "michal"
+  private username: string = '';
 
   setUsername(name: string) {
-    this.username = name
+    this.username = name;
   }
   getUsername(): string {
     return this.username;
   }
   checkAuth(): boolean {
-    return this.username.trim() === ""
+    if (this.username.trim() === '') return false;
+    return true;
   }
 
-  constructor() { 
-    
-  }
+  constructor() {}
 }

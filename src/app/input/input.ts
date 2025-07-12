@@ -17,7 +17,6 @@ export class Input {
   handleSend() {
     if (this.message.trim() !== '') {
       this.chat.sendMessage(this.message);
-
       this.message = '';
     }
   }
