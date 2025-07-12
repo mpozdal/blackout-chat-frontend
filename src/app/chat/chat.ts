@@ -44,7 +44,7 @@ export class Chat implements OnInit, AfterViewInit {
         const msg: ChatMessage = {
           user,
           text,
-          expiresAt: Date.now() + 10000,
+          expiresAt: Date.now() + 15000,
         };
         this.messages.push(msg);
 
@@ -52,7 +52,7 @@ export class Chat implements OnInit, AfterViewInit {
         setTimeout(() => {
           this.messages = this.messages.filter((m) => m !== msg);
           this.cdr.detectChanges(); // odśwież widok, jeśli trzeba
-        }, 10000);
+        }, 15000);
 
         // Auto-scroll
         setTimeout(() => this.scrollToBottom(), 0);
