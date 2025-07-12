@@ -1,14 +1,16 @@
 import {
-  AfterViewChecked,
+  AfterViewInit,
   Component,
   ElementRef,
   ViewChild,
   OnInit,
+  ChangeDetectorRef,
 } from '@angular/core';
 import { ChatBubble } from '../chat-bubble/chat-bubble';
 import { Input } from '../input/input';
 import { WebsocketService } from '../websocket';
 import { Auth } from '../auth';
+import { environment } from '../../environments/environment';
 
 interface ChatMessage {
   text: string;
@@ -18,25 +20,24 @@ interface ChatMessage {
 
 @Component({
   selector: 'app-chat',
+  standalone: true,
   imports: [ChatBubble, Input],
   templateUrl: './chat.html',
-  styleUrl: './chat.css',
+  styleUrls: ['./chat.css'],
 })
-export class Chat implements OnInit {
-  @ViewChild('scrollContainer') scrollContainer!: ElementRef;
-  @ViewChild('bottom') bottom!: ElementRef;
+export class Chat implements OnInit, AfterViewInit {
+  @ViewChild('bottom') bottom?: ElementRef<HTMLDivElement>;
+
   messages: ChatMessage[] = [];
 
-  constructor(private wsService: WebsocketService, private authService: Auth) {}
-  scrollToBottom(): void {
-    this.bottom?.nativeElement.scrollIntoView({ behavior: 'smooth' });
-  }
+  constructor(
+    private wsService: WebsocketService,
+    private authService: Auth,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  ngAfterViewChecked(): void {
-    this.scrollToBottom();
-  }
   ngOnInit(): void {
-    this.wsService.connect('wss://black-out-chat-backend.onrender.com/ws');
+    this.wsService.connect(environment.apiUrl);
 
     this.wsService.messages$.subscribe((raw) => {
       try {
@@ -44,24 +45,33 @@ export class Chat implements OnInit {
         const msg: ChatMessage = {
           user,
           text,
-          expiresAt: Date.now() + 10000, // 10s do wygaśnięcia
+          expiresAt: Date.now() + 10000,
         };
         this.messages.push(msg);
 
+        // Usuń wiadomość po 10s
         setTimeout(() => {
           this.messages = this.messages.filter((m) => m !== msg);
+          this.cdr.detectChanges(); // odśwież widok, jeśli trzeba
         }, 10000);
+
+        // Auto-scroll
+        setTimeout(() => this.scrollToBottom(), 0);
       } catch (err) {
         console.error('Błąd parsowania wiadomości:', err);
       }
     });
-    setInterval(() => {
-      // Triggeruje change detection
-      this.messages = [...this.messages];
-    }, 1000);
   }
 
-  sendMessage(text: string) {
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
+  }
+
+  scrollToBottom(): void {
+    this.bottom?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  sendMessage(text: string): void {
     const msg = {
       user: this.authService.getUsername(),
       text,

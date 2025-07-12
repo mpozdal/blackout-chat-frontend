@@ -1,7 +1,27 @@
 /* You can add global styles to this file, and also import other style files */
+
 @import "tailwindcss";
 @plugin "daisyui";
 
 * {
   font-family: "Montserrat", sans-serif;
+  color: darkgray;
+}
+*::-webkit-scrollbar {
+  width: 0px !important;
+  background-color: white !important;
+}
+@theme {
+  --background: #000;
+  --header: darkgray;
+}
+
+@font-face {
+  font-family: "Blackout";
+  src: url("./assets/blackout.midnight.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+.header {
+  font-family: "Blackout";
 }
