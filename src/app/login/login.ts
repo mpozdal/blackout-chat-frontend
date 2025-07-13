@@ -20,9 +20,10 @@ export class Login {
   login() {
     this.showErrorUsername = false;
     this.showErrorPassword = false;
-    if (!this.username.trim()) {
+    if (!this.username.trim() || this.username.length > 12) {
       this.showErrorUsername = true;
       this.showErrorPassword = true;
+      return;
     }
     if (!this.password.trim()) {
       this.showErrorPassword = true;

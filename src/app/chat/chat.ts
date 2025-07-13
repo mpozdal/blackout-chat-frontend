@@ -10,10 +10,12 @@ import { ChatBubble } from '../chat-bubble/chat-bubble';
 import { Input } from '../input/input';
 import { WebsocketService } from '../websocket';
 import { Auth } from '../auth';
-
+import { Subscription } from 'rxjs';
+import { OnDestroy } from '@angular/core';
 interface ChatMessage {
   text: string;
   user: string;
+  clientId: string;
   expiresAt: number;
 }
 
@@ -26,35 +28,40 @@ interface ChatMessage {
 })
 export class Chat implements OnInit, AfterViewInit {
   @ViewChild('bottom') bottom?: ElementRef<HTMLDivElement>;
-
+  clientId: string;
   messages: ChatMessage[] = [];
+  private messageSub?: Subscription;
 
   constructor(
     private wsService: WebsocketService,
-    private authService: Auth,
+    protected authService: Auth,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.clientId = authService.getClientId();
+  }
 
   ngOnInit(): void {
     this.wsService.connect(import.meta.env.NG_APP_APIURL);
 
-    this.wsService.messages$.subscribe((raw) => {
+    this.messageSub = this.wsService.messages$.subscribe((raw) => {
       try {
-        const { user, text } = JSON.parse(raw);
+        console.log(raw);
+        const { user, text, clientId, ExpiresAt } = JSON.parse(raw);
         const msg: ChatMessage = {
           user,
+          clientId,
           text,
-          expiresAt: Date.now() + 15000,
+          expiresAt: ExpiresAt,
         };
         this.messages.push(msg);
 
-        // Usuń wiadomość po 10s
         setTimeout(() => {
           this.messages = this.messages.filter((m) => m !== msg);
-          this.cdr.detectChanges(); // odśwież widok, jeśli trzeba
+          this.cdr.detectChanges();
         }, 15000);
-
-        // Auto-scroll
+        setInterval(() => {
+          this.cdr.detectChanges(); // zmusza Angulara do przeliczenia template
+        }, 1000);
         setTimeout(() => this.scrollToBottom(), 0);
       } catch (err) {
         console.error('Błąd parsowania wiadomości:', err);
@@ -67,14 +74,20 @@ export class Chat implements OnInit, AfterViewInit {
   }
 
   scrollToBottom(): void {
-    this.bottom?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    setTimeout(() => {
+      this.bottom?.nativeElement.scrollIntoView({ behavior: 'smooth' });
+    }, 50);
   }
 
   sendMessage(text: string): void {
     const msg = {
       user: this.authService.getUsername(),
       text,
+      clientId: this.clientId,
     };
     this.wsService.send(JSON.stringify(msg));
+  }
+  ngOnDestroy(): void {
+    this.messageSub?.unsubscribe();
   }
 }

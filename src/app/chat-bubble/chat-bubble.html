@@ -1,7 +1,9 @@
-<div class="chat chat-start rounded-xl gap-2">
+<div class="chat chat-start rounded-2xl gap-2" [ngClass]="{'chat-start': align === 'start',
+'chat-end': align === 'end'
+}">
   <div class="chat-header">
     {{msg.user}}
   </div>
-  <div class="chat-bubble text-xl font-medium">{{msg.text}}</div>
+  <div class="chat-bubble text-lg font-medium max-w-1/3 break-words whitespace-pre-wrap">{{msg.text}}</div>
   <div class="chat-footer opacity-50">{{ getSecondsLeft(msg) }}s</div>
 </div>

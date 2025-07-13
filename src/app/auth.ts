@@ -1,26 +1,36 @@
 import { inject, Injectable } from '@angular/core';
 import { Router } from '@angular/router';
+import { LocalService } from './local';
+import { webSocket } from 'rxjs/webSocket';
+import { WebsocketService } from './websocket';
 
 @Injectable({
   providedIn: 'root',
 })
 export class Auth {
-  private username: string = '';
   router = inject(Router);
+  //wsService = inject(webSocket);
+  localService = inject(LocalService);
+
+  constructor(private wsService: WebsocketService) {}
+
+  getClientId() {
+    return this.localService.getData('id');
+  }
   setUsername(name: string) {
-    this.username = name;
+    this.localService.saveData('username', name);
+    this.localService.saveData('id', crypto.randomUUID());
   }
   getUsername(): string {
-    return this.username;
+    return this.localService.getData('username');
   }
   checkAuth(): boolean {
-    if (this.username.trim() === '') return false;
+    if (this.getUsername() === '') return false;
     return true;
   }
   logout(): void {
-    this.username = '';
+    this.localService.clearData();
+    this.wsService.disconnect();
     this.router.navigate(['/']);
   }
-
-  constructor() {}
 }

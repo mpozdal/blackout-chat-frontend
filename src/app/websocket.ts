@@ -1,38 +1,64 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class WebsocketService {
-  private socket!: WebSocket;
-  private messageSubject = new Subject<string>();
+  private socket?: WebSocket;
+  private messagesSubject = new Subject<string>();
+  public messages$: Observable<string> = this.messagesSubject.asObservable();
 
-  public messages$ = this.messageSubject.asObservable();
+  private isConnected = false;
 
   connect(url: string): void {
+    if (this.isConnected) {
+      console.warn('[WebSocket] Already connected, skipping.');
+      return;
+    }
+
     this.socket = new WebSocket(url);
+    this.isConnected = true;
 
     this.socket.onopen = () => {
-      console.log('WebSocket connected');
+      console.log('[WebSocket] Connected');
     };
 
-    this.socket.onmessage = (event) => {
-      this.messageSubject.next(event.data);
-    };
+    this.socket.onmessage = async (event) => {
+      const raw =
+        typeof event.data === 'string' ? event.data : await event.data.text(); // 🛠 obsługa Bloba
 
-    this.socket.onclose = () => {
-      console.log('WebSocket disconnected');
+      this.messagesSubject.next(raw);
     };
 
     this.socket.onerror = (error) => {
-      console.error('WebSocket error:', error);
+      console.error('[WebSocket] Error:', error);
+    };
+
+    this.socket.onclose = () => {
+      console.log('[WebSocket] Closed');
+      this.isConnected = false;
     };
   }
 
-  send(message: string): void {
-    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      this.socket.send(message);
+  send(data: string): void {
+    if (this.socket?.readyState === WebSocket.OPEN) {
+      this.socket.send(data);
+    } else {
+      console.warn('[WebSocket] Tried to send while not connected');
     }
+  }
+
+  disconnect(): void {
+    if (this.socket) {
+      this.socket.close();
+      this.socket = undefined;
+    }
+
+    this.messagesSubject.complete(); // zakończ stream
+    this.messagesSubject = new Subject<string>(); // stwórz nowy
+    this.messages$ = this.messagesSubject.asObservable();
+
+    this.isConnected = false;
   }
 }

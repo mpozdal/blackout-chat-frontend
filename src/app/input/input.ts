@@ -15,7 +15,7 @@ export class Input {
   message: string = '';
 
   handleSend() {
-    if (this.message.trim() !== '') {
+    if (this.message.trim() !== '' && this.message.length < 400) {
       this.chat.sendMessage(this.message);
       this.message = '';
     }

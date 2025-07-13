@@ -25,3 +25,57 @@
 .header {
   font-family: "Blackout";
 }
+@keyframes glitchFlicker {
+  0% {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+  5% {
+    opacity: 0.8;
+    transform: translateX(1px) rotate(0.5deg);
+    filter: brightness(130%);
+  }
+  10% {
+    opacity: 0.3;
+    transform: translateX(-1px);
+    filter: contrast(150%) blur(0.5px);
+  }
+  15% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  25% {
+    opacity: 0.7;
+    filter: grayscale(0.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-1px);
+  }
+  45% {
+    opacity: 0.5;
+    transform: translateX(1px) rotate(-0.5deg);
+    filter: brightness(120%) saturate(2);
+  }
+  60% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+  75% {
+    opacity: 0.6;
+    filter: blur(1px);
+    transform: translateX(-1px);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+.glitch-flicker {
+  animation: glitchFlicker 10s infinite ease-in-out;
+}
