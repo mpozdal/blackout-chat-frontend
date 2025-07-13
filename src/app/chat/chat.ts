@@ -31,9 +31,10 @@ export class Chat implements OnInit, AfterViewInit {
   clientId: string;
   messages: ChatMessage[] = [];
   private messageSub?: Subscription;
+  isConnected = false;
 
   constructor(
-    private wsService: WebsocketService,
+    protected wsService: WebsocketService,
     protected authService: Auth,
     private cdr: ChangeDetectorRef
   ) {
@@ -41,6 +42,10 @@ export class Chat implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
+    this.wsService.isConnected$.subscribe((connected) => {
+      this.isConnected = connected;
+      this.cdr.detectChanges();
+    });
     this.wsService.connect(import.meta.env.NG_APP_APIURL);
 
     this.messageSub = this.wsService.messages$.subscribe((raw) => {

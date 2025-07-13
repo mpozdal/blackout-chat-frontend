@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject, Observable } from 'rxjs';
+import { Subject, Observable, BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +10,8 @@ export class WebsocketService {
   public messages$: Observable<string> = this.messagesSubject.asObservable();
 
   private isConnected = false;
+  private isConnectedSubject = new BehaviorSubject<boolean>(false);
+  public isConnected$ = this.isConnectedSubject.asObservable();
 
   connect(url: string): void {
     if (this.isConnected) {
@@ -18,9 +20,10 @@ export class WebsocketService {
     }
 
     this.socket = new WebSocket(url);
-    this.isConnected = true;
+    //this.isConnected = true;
 
     this.socket.onopen = () => {
+      this.isConnectedSubject.next(true);
       console.log('[WebSocket] Connected');
     };
 
@@ -32,12 +35,14 @@ export class WebsocketService {
     };
 
     this.socket.onerror = (error) => {
+      this.isConnectedSubject.next(false);
       console.error('[WebSocket] Error:', error);
     };
 
     this.socket.onclose = () => {
+      this.isConnectedSubject.next(false);
       console.log('[WebSocket] Closed');
-      this.isConnected = false;
+      //this.isConnected = false;
     };
   }
 
@@ -54,11 +59,15 @@ export class WebsocketService {
       this.socket.close();
       this.socket = undefined;
     }
-
+    this.isConnectedSubject.next(false);
     this.messagesSubject.complete(); // zakończ stream
     this.messagesSubject = new Subject<string>(); // stwórz nowy
     this.messages$ = this.messagesSubject.asObservable();
 
     this.isConnected = false;
+  }
+
+  public getIsConnected() {
+    return this.isConnectedSubject.value;
   }
 }
