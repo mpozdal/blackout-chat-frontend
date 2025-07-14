@@ -12,7 +12,9 @@ import { WebsocketService } from '../websocket';
 import { Auth } from '../auth';
 import { Subscription } from 'rxjs';
 import { OnDestroy } from '@angular/core';
+import { Encryption } from '../encryption';
 interface ChatMessage {
+  type: string;
   text: string;
   user: string;
   clientId: string;
@@ -36,28 +38,51 @@ export class Chat implements OnInit, AfterViewInit {
   constructor(
     protected wsService: WebsocketService,
     protected authService: Auth,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    protected encryptionService: Encryption
   ) {
     this.clientId = authService.getClientId();
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.wsService.isConnected$.subscribe((connected) => {
       this.isConnected = connected;
       this.cdr.detectChanges();
     });
     this.wsService.connect(import.meta.env.NG_APP_APIURL);
 
-    this.messageSub = this.wsService.messages$.subscribe((raw) => {
+    this.messageSub = this.wsService.messages$.subscribe(async (raw) => {
       try {
+        var msg: ChatMessage;
         console.log(raw);
-        const { user, text, clientId, ExpiresAt } = JSON.parse(raw);
-        const msg: ChatMessage = {
-          user,
-          clientId,
-          text,
-          expiresAt: ExpiresAt,
-        };
+        const { type, user, ciphertext, iv, clientId, ExpiresAt } =
+          JSON.parse(raw);
+        if (type === 'image') {
+          const imageData = await this.encryptionService.decryptBinary(
+            ciphertext,
+            iv
+          );
+          const blob = new Blob([imageData as BlobPart], {
+            type: 'image/jpeg',
+          }); // albo 'image/png'
+          const url = URL.createObjectURL(blob);
+          msg = {
+            type,
+            user,
+            text: url,
+            clientId,
+            expiresAt: ExpiresAt,
+          };
+        } else {
+          const message = await this.encryptionService.decrypt(ciphertext, iv);
+          msg = {
+            type,
+            user,
+            text: message,
+            clientId,
+            expiresAt: ExpiresAt,
+          };
+        }
         this.messages.push(msg);
 
         setTimeout(() => {
@@ -84,12 +109,30 @@ export class Chat implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  sendMessage(text: string): void {
+  async sendImage(arrayBuffer: ArrayBuffer) {
+    const { ciphertext, iv } = await this.encryptionService.encryptBinary(
+      arrayBuffer
+    );
     const msg = {
+      type: 'image',
       user: this.authService.getUsername(),
-      text,
+      ciphertext,
+      iv,
       clientId: this.clientId,
     };
+    this.wsService.send(JSON.stringify(msg));
+  }
+
+  async sendMessage(text: string): Promise<void> {
+    const { ciphertext, iv } = await this.encryptionService.encrypt(text);
+    const msg = {
+      type: 'text',
+      user: this.authService.getUsername(),
+      ciphertext,
+      iv,
+      clientId: this.clientId,
+    };
+
     this.wsService.send(JSON.stringify(msg));
   }
   ngOnDestroy(): void {

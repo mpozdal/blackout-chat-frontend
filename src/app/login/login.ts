@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Auth } from '../auth';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Encryption } from '../encryption';
 @Component({
   selector: 'app-login',
   imports: [CommonModule, FormsModule],
@@ -15,9 +16,13 @@ export class Login {
   showErrorUsername: boolean = false;
   showErrorPassword: boolean = false;
 
-  constructor(private router: Router, private authService: Auth) {}
+  constructor(
+    private router: Router,
+    private authService: Auth,
+    protected encryptionService: Encryption
+  ) {}
 
-  login() {
+  async login() {
     this.showErrorUsername = false;
     this.showErrorPassword = false;
     if (!this.username.trim() || this.username.length > 12) {
@@ -29,11 +34,13 @@ export class Login {
       this.showErrorPassword = true;
       return;
     }
-    if (this.password !== import.meta.env.NG_APP_PASSWORD) {
+    try {
+      await this.encryptionService.setPassword(this.password); // ⬅️ ważne!
+      this.authService.setUsername(this.username);
+      this.router.navigate(['/chat']);
+    } catch (err) {
+      console.error('Błąd ustawiania hasła:', err);
       this.showErrorPassword = true;
-      return;
     }
-    this.authService.setUsername(this.username);
-    this.router.navigate(['/chat']);
   }
 }

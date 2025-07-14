@@ -8,6 +8,7 @@ import { WebsocketService } from './websocket';
   providedIn: 'root',
 })
 export class Auth {
+  username: string = '';
   router = inject(Router);
   //wsService = inject(webSocket);
   localService = inject(LocalService);
@@ -18,11 +19,11 @@ export class Auth {
     return this.localService.getData('id');
   }
   setUsername(name: string) {
-    this.localService.saveData('username', name);
-    this.localService.saveData('id', crypto.randomUUID());
+    this.username = name;
+    //this.localService.saveData('id', crypto.randomUUID());
   }
   getUsername(): string {
-    return this.localService.getData('username');
+    return this.username;
   }
   checkAuth(): boolean {
     if (this.getUsername() === '') return false;

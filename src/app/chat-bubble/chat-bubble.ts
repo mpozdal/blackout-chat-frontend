@@ -10,6 +10,7 @@ import { Component, Input } from '@angular/core';
 export class ChatBubble {
   @Input() align: 'start' | 'end' = 'start';
   @Input() msg!: {
+    type: string;
     text: string;
     user: string;
     expiresAt: number;

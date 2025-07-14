@@ -4,6 +4,13 @@
   <div class="chat-header">
     {{msg.user}}
   </div>
-  <div class="chat-bubble text-lg font-medium max-full md:max-w-1/3 break-words whitespace-pre-wrap">{{msg.text}}</div>
+  <div class="chat-bubble text-lg font-medium  max-w-4/5 lg:min-w-10 lg:max-w-1/3 break-words whitespace-pre-wrap overflow-x-hidden">
+    @if(msg.type === "image"){
+      <img [src]="msg.text" width="200" />
+    } @else {
+      {{msg.text}}
+    }
+    
+</div>
   <div class="chat-footer opacity-50">{{ getSecondsLeft(msg) }}s</div>
 </div>

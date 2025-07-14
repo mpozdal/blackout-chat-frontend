@@ -1,8 +1,35 @@
 <div class="w-full border-base-300 flex flex-row px-10 py-5 gap-10">
-  <input [(ngModel)]="message" (keyup.enter)="handleSend()" type="text" class="w-full  px-2 md:px-4 border-b-3 border-base-300 placeholder:text-gray-300 tracking-wider focus:outline-hidden focus:border-base-200 transition-all placeholder:text-gray-500" placeholder="Bb"/>
-  <button  (click)="handleSend()" class="cursor-pointer bg-base-300 hover:bg-gray-900 transition-all p-3 font-bold rounded-xl">
-    <i class="fas fa-seedling"></i>
+  <input [(ngModel)]="message" (input)="onChange($event)" maxlength="10" (keyup.enter)="handleSend()" type="text" class="w-full  px-2 md:px-4 border-b-3 border-base-300 placeholder:text-gray-300 tracking-wider focus:outline-hidden focus:border-base-200 transition-all placeholder:text-gray-500" placeholder="Bb"/>
+
+  <div class="flex gap-2">
+    <label
+  for="file-upload"
+  class="cursor-pointer bg-base-300 hover:bg-gray-900 transition-all p-3 font-bold rounded-xl disabled:opacity-30 disabled:bg-none disabled:cursor-not-allowed flex items-center "
+>
+  📎
+</label>
+
+<input
+  id="file-upload"
+  type="file"
+  (change)="handleImage($event)"
+  accept="image/*"
+  hidden
+/>
+  @if(message.trim() === ''){
+    <button  #submit (click)="handleSend('Bb')" class="cursor-pointer bg-base-300 hover:bg-gray-900 transition-all p-3 font-bold rounded-xl disabled:opacity-30 disabled:bg-none disabled:cursor-not-allowed">
+      Bb
+    </button>
+  } @else {
+
+    <button  #submit (click)="handleSend()" class="cursor-pointer bg-base-300 hover:bg-gray-900 transition-all p-3 font-bold rounded-xl disabled:opacity-30 disabled:bg-none disabled:cursor-not-allowed">
+      <i class="fas fa-seedling"></i>
     <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M11.5003 12H5.41872M5.24634 12.7972L4.24158 15.7986C3.69128 17.4424 3.41613 18.2643 3.61359 18.7704C3.78506 19.21 4.15335 19.5432 4.6078 19.6701C5.13111 19.8161 5.92151 19.4604 7.50231 18.7491L17.6367 14.1886C19.1797 13.4942 19.9512 13.1471 20.1896 12.6648C20.3968 12.2458 20.3968 11.7541 20.1896 11.3351C19.9512 10.8529 19.1797 10.5057 17.6367 9.81135L7.48483 5.24303C5.90879 4.53382 5.12078 4.17921 4.59799 4.32468C4.14397 4.45101 3.77572 4.78336 3.60365 5.22209C3.40551 5.72728 3.67772 6.54741 4.22215 8.18767L5.24829 11.2793C5.34179 11.561 5.38855 11.7019 5.407 11.8459C5.42338 11.9738 5.42321 12.1032 5.40651 12.231C5.38768 12.375 5.34057 12.5157 5.24634 12.7972Z" stroke="darkgray" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg></button>
+    </svg>
+    </button>
+    
+  }
+  </div>
+
 </div>
